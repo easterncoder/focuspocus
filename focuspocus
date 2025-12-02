@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+
+# FocusPocus - A tiny spell to block/unblock distracting websites
+# Copyright (C) 2025 Mike Lopez <e@mikelopez.com>
+#
+# Usage: focuspocus [focus|pocus]
+#
+# - pocus: Unblocks distracting websites
+# - focus: Blocks distracting websites (Default)
+#
+# Example /etc/hosts/ lines for distracting websites:
+#
+# 127.0.0.1 facebook.com www.facebook.com apps.facebook.com #distraction
+# 127.0.0.1 twitter.com www.twitter.com #distraction
+# 127.0.0.1 instagram.com www.instagram.com #distraction
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+math_challenge() {
+	local a b correct answer
+
+	a=$(( RANDOM % 9 + 1 ))   # 1-digit
+	b=$(( RANDOM % 90 + 10 )) # 2-digit
+	
+	correct=$(( a * b ))
+
+	read -p "What is $a × $b : " answer
+
+	# strip spaces
+	answer=${answer//[[:space:]]/}
+
+	if [[ "$answer" =~ ^[0-9]+$ ]] && [[ "$answer" -eq "$correct" ]]; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+require_perl() {
+	if ! command -v perl >/dev/null 2>&1; then
+		cat <<-'EOF' >&2
+
+		+-------------------------------------------------+
+		| ✨ FocusPocus requires Perl but it is missing.  |
+		| Install Perl (needed for sudo perl -pi) first.  |
+		+-------------------------------------------------+
+
+		EOF
+		exit 1
+	fi
+}
+
+workmode() {
+	sudo perl -pi -e 's/^[#\s]+(.+?#distraction)/\1/' /etc/hosts && \
+	cat <<-'EOF' && exit 0
+	+-------------------------------------------------+
+	|        ✨ FocusPocus: Work spell on! ✨         |
+	+-------------------------------------------------+
+	EOF
+	cat <<-'EOF' && exit 1
+	+-------------------------------------------------+
+	|    ✨ FocusPocus fizzled… spell didn't cast.    |
+	+-------------------------------------------------+
+	EOF
+}
+
+playmode() {
+	cat <<-'EOF'
+
+	+-------------------------------------------------+
+	|     ✨ The spirits whisper: "Back to work."     |
+	|                                                 |
+	|              This is a workstation.             |
+	|    BUT if it is play you desire then conjure    |
+	|    the right answers to two riddles you must    |
+	+-------------------------------------------------+
+
+	EOF
+
+	math_challenge && \
+	math_challenge && \
+	sudo perl -pi -e 's/^\s*([^#]+?#distraction)/#\1/' /etc/hosts && \
+	cat <<-'EOF' && exit 0
+
+	+-------------------------------------------------+
+	|  ✨ Play granted... but the clock is watching   |
+	|             Get back to work soon.              |
+	+-------------------------------------------------+
+
+	EOF
+
+	# Still here? Either challenge failed or something went wrong.
+
+	cat <<-'EOF' && exit 1
+
+	+-------------------------------------------------+
+	|       ✨ Your magic failed. No playtime.        | 
+	+-------------------------------------------------+
+
+	EOF
+}
+
+main() {
+	local focusmode
+	require_perl
+	focusmode=$(echo "${1:-focus}" | tr '[:upper:]' '[:lower:]')
+	[ "$focusmode" == "pocus" ] && playmode || workmode
+}
+
+main "$@"
