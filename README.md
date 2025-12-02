@@ -19,7 +19,7 @@ FocusPocus is a tiny Bash spell that toggles distractions on or off by rewriting
 2. Mark it executable: `chmod +x /usr/local/bin/focuspocus`.
    - Fast install one-liner (downloads the script directly from `main`):
      ```bash
-     (curl -fsSL https://raw.githubusercontent.com/easterncoder/focuspocus/main/focuspocus -o /usr/local/bin/focuspocus || wget -qO /usr/local/bin/focuspocus https://raw.githubusercontent.com/easterncoder/focuspocus/main/focuspocus) && chmod +x /usr/local/bin/focuspocus
+     (sudo curl -fsSL https://raw.githubusercontent.com/easterncoder/focuspocus/main/focuspocus -o /usr/local/bin/focuspocus || sudo wget -qO /usr/local/bin/focuspocus https://raw.githubusercontent.com/easterncoder/focuspocus/main/focuspocus) && sudo chmod +x /usr/local/bin/focuspocus
      ```
 3. Add distraction entries to `/etc/hosts`, for example:
    ```
