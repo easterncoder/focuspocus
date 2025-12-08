@@ -62,6 +62,16 @@ require_perl() {
 }
 
 workmode() {
+	grep -E '^#.+?+#distraction' /etc/hosts >/dev/null || {
+		cat <<-'EOF' && exit 0
+
+		+-------------------------------------------------+
+		|    ✨ The spirits say you can keep working.     |
+		+-------------------------------------------------+
+
+		EOF
+	}
+
 	sudo perl -pi -e 's/^[#\s]+(.+?#distraction)/\1/' /etc/hosts && \
 	cat <<-'EOF' && exit 0
 	+-------------------------------------------------+
@@ -76,6 +86,16 @@ workmode() {
 }
 
 playmode() {
+	grep -E '^[^#]+#distraction' /etc/hosts >/dev/null || {
+		cat <<-'EOF' && exit 0
+
+		+-------------------------------------------------+
+		|     ✨ The spirits say you're fine for now.     |
+		+-------------------------------------------------+
+
+		EOF
+	}
+
 	cat <<-'EOF'
 
 	+-------------------------------------------------+
